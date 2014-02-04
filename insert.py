@@ -8,6 +8,13 @@ import csv
 
 beginning = time.time()
 
+if len(sys.argv) < 4:
+    print('''
+Usage:
+    python insert.py [csv file name] [database name] [password]
+''')
+    sys.exit()
+
 uid = 1
 dbname = sys.argv[2]
 password = sys.argv[3]
