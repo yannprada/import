@@ -3,10 +3,9 @@ import
 
 xmlrpc script to insert client into an openerp 7 database
 
-TODO
-----
+TODO:
     * generalize for res.partner (suppliers, users, clients, ...)
-    * draft schema :
+    * draft schema:
                         clients.csv     >
                         supplier.csv    >> insert.py
                         users.csv       >
