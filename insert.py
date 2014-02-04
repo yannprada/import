@@ -39,7 +39,13 @@ data = {
 # names of columns must be exactly the same as those defined here (edit here if necessary, but be sure to edit data as well)
 keys = ['ref','title','name','street','zip','city','country','phone','mobile','fax','email','website','customer','is_company']
 
+
 def search_id_by_name(data, name):
+    '''
+data: list of objects from the database
+name: value of the field 'name'
+return: id of the object which match the name provided
+    '''
     for item in data:
         if item['name'] == name:
             return item['id']
@@ -54,7 +60,7 @@ with open(input_name, 'r') as input_file:
         res_partner_data = {}
         for key in keys:
             # handle relationnal values
-            if key in ['title', 'country']:
+            if key in data:
                 res_partner_data[key] = search_id_by_name(data[key], row[key]) or False
             else:
                 # handle boolean values quoted
