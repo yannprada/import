@@ -49,17 +49,6 @@ relationnal_data = {
 keys = ['ref','title','name','street','zip','city','country','phone','mobile','fax','email','website','customer','is_company']
 
 
-def search_id_by_name(data, name):
-    '''
-data: list of objects
-name: value of the attribute 'name'
-return: id of the object which match the value of the attribute 'name' provided
-    '''
-    for item in data:
-        if item['name'] == name:
-            return item['id']
-    return None
-
 with open(input_name, 'r') as input_file:
     cr = csv.DictReader(input_file, **input_kwargs)
     line = 0
@@ -71,12 +60,15 @@ with open(input_name, 'r') as input_file:
         for key in keys:
             # handle relationnal values
             if key in relationnal_data:
-                some_id = search_id_by_name(relationnal_data[key]['data'], row[key])
-                if some_id is None:
-                    print('\nUnknow value "' + str(row[key]) + '" for attribute "name" in table "' + relationnal_data[key]['table_name'] + '"')
-                    res_partner_data[relationnal_data[key]['column_name']] = ''
+                name = str(row[key])
+                column = relationnal_data[key]['column_name']
+                obj_list = relationnal_data[key]['data']
+                obj =  next((x for x in obj_list if x['name'] == name), None)
+                if obj is None:
+                    print('\nUnknow value "' + name + '" for attribute "name" in table "' + relationnal_data[key]['table_name'] + '"')
+                    res_partner_data[column] = ''
                 else:
-                    res_partner_data[relationnal_data[key]['column_name']] = some_id
+                    res_partner_data[column] = some_id['id']
             else:
                 # handle boolean values quoted
                 if row[key] == 'True':
