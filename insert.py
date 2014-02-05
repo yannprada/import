@@ -62,7 +62,7 @@ for key in relationnal_data:
     # use the values of a list of objects like [{'id': someId, 'name': someName}, ...]
     # and insert into an object like {someName: someId, ...}
     for item in data:
-        relationnal_data[key]['data'][item['name']] = item['id']
+        obj['data'][item['name']] = item['id']
 
 def message(msg):
     sys.stdout.write(msg)
