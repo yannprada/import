@@ -67,22 +67,21 @@ with open(input_name, 'r') as input_file:
         sys.stdout.flush()
         res_partner_data = {}
         for key in keys:
+            value = row[key]
             # handle relationnal values
             if key in relationnal_data:
-                name = row[key]
-                if not name:
+                if not value:
                     res_partner_data[relationnal_data[key]['column_name']] = ''
                 else:
-                    res_partner_data[relationnal_data[key]['column_name']] = relationnal_data[key]['data'][name]
+                    res_partner_data[relationnal_data[key]['column_name']] = relationnal_data[key]['data'][value]
+            # handle other values
             else:
                 # handle boolean values quoted
-                if row[key] == 'True':
-                    res_partner_data[key] = True
-                elif row[key] == 'False':
-                    res_partner_data[key] = False
-                # handle all other values
-                else:
-                    res_partner_data[key] = row[key] or False
+                if value in ['True', 'False']:
+                    value = eval(value)
+                
+                res_partner_data[key] = value or False
+        # insert values
         res_partner_id = sock.execute(dbname, uid, password, 'res.partner', 'create', res_partner_data)
         sys.stdout.write('... done with id: ' + str(res_partner_id) + '\n')
         sys.stdout.flush()
