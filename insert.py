@@ -29,21 +29,30 @@ input_kwargs = {
 
 sock = xmlrpclib.ServerProxy(host + '/xmlrpc/object')
 
-res_partner_title_ids = sock.execute(dbname, uid, password, 'res.partner.title', 'search', [])
-res_country_ids = sock.execute(dbname, uid, password, 'res.country', 'search', [])
-
+# prepare the relationnal data
 relationnal_data = {
     'title': {
         'table_name': 'res.partner.title',
         'column_name': 'title',
-        'data': sock.execute(dbname, uid, password, 'res.partner.title', 'read', res_partner_title_ids, []),
+        'data': {},
     },
     'country': {
         'table_name': 'res.country',
         'column_name': 'country_id',
-        'data': sock.execute(dbname, uid, password, 'res.country', 'read', res_country_ids, []),
+        'data': {},
     },
 }
+
+# request the database and populate the data fields
+for key in relationnal_data:
+    obj = relationnal_data[key]
+    table = obj['table_name']
+    ids = sock.execute(dbname, uid, password, table, 'search', [])
+    data = sock.execute(dbname, uid, password, table, 'read', ids, ['id', 'name'])
+    # use the values of a list of objects like [{'id': someId, 'name': someName}, ...]
+    # and insert into an object like {someName: someId, ...}
+    for item in data:
+        relationnal_data[key]['data'][item['name']] = item['id']
 
 # names of columns must be exactly the same as those defined here (edit here if necessary, but be sure to edit data as well)
 keys = ['ref','title','name','street','zip','city','country','phone','mobile','fax','email','website','customer','is_company']
@@ -60,15 +69,11 @@ with open(input_name, 'r') as input_file:
         for key in keys:
             # handle relationnal values
             if key in relationnal_data:
-                name = str(row[key])
-                column = relationnal_data[key]['column_name']
-                obj_list = relationnal_data[key]['data']
-                obj =  next((x for x in obj_list if x['name'] == name), None)
-                if obj is None:
-                    print('\nUnknow value "' + name + '" for attribute "name" in table "' + relationnal_data[key]['table_name'] + '"')
-                    res_partner_data[column] = ''
+                name = row[key]
+                if not name:
+                    res_partner_data[relationnal_data[key]['column_name']] = ''
                 else:
-                    res_partner_data[column] = some_id['id']
+                    res_partner_data[relationnal_data[key]['column_name']] = relationnal_data[key]['data'][name]
             else:
                 # handle boolean values quoted
                 if row[key] == 'True':
